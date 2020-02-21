@@ -1,15 +1,20 @@
 package pers.bertram.controller;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import pers.bertram.beans.FileTreeInfoType;
 import pers.bertram.util.FileUtil;
+import pers.bertram.util.JSON;
 import pers.bertram.util.RuntimeUtil;
 import pers.bertram.util.StringUtil;
 
@@ -17,13 +22,13 @@ import pers.bertram.util.StringUtil;
 public class VideoController {
 
 	@RequestMapping("/videoplay")
-	public ModelAndView videoPlay(String path) {
-		ModelAndView mav = new ModelAndView();
+	@ResponseBody
+	public String videoPlay(String path) {
 		File file = FileUtil.getFile(path);
 		if (file == null)
-			return new ModelAndView("showroot");
-		if (!FileUtil.getFileType(file).equals("vid"))
-			return new ModelAndView("redirect:./path?path="+StringUtil.encodeURI(path));
+			return "{}";
+		if (!FileUtil.getFileType(file).equals(FileTreeInfoType.VIDEO))
+			return "{}";
 		List<File> fileList = FileUtil.getDirVideoList(file.getParentFile());
 		File pref = file;
 		File nextf = file;
@@ -40,38 +45,40 @@ public class VideoController {
 				break;
 			}
 		}
-		mav.addObject("videoname", file.getName());
-		mav.addObject("videopath", "./download?path=" + StringUtil.encodeURI(file.getPath()));
-		mav.addObject("prevideoname", pref.getName());
-		mav.addObject("prevideopath", "./videoplay?path=" + StringUtil.encodeURI(pref.getPath()));
-		mav.addObject("nextvideoname", nextf.getName());
-		mav.addObject("nextvideopath", "./videoplay?path=" + StringUtil.encodeURI(nextf.getPath()));
-		mav.setViewName("playvideo5");
-		return mav;
+		Map mp = new HashMap();
+		mp.put("videoname", file.getName());
+		mp.put("videopath", StringUtil.encodeURI(file.getPath()));
+		mp.put("prevideoname", pref.getName());
+		mp.put("prevideopath", StringUtil.encodeURI(pref.getPath()));
+		mp.put("nextvideoname", nextf.getName());
+		mp.put("nextvideopath", StringUtil.encodeURI(nextf.getPath()));
+		return JSON.stringify(mp);
 	}
 	
 	@RequestMapping("videoshortcut")
 	//Runtime 执行 ffmpeg 生成视频截图，存放于项目/img/videocut/下
 	public String getShortCut(String path, HttpServletRequest req) {
-		String realPath = req.getRealPath("/"); 
 		File file = FileUtil.getFile(path);
+		String realPath = file.getParent(); 
+		System.out.println(System.getProperty("user.dir"));//user.dir指定了当前的路径 
 		if (file != null) {
 			String srcPath = file.getPath();
-			String destPath = realPath + "\\img\\videocut\\" + FileUtil.getFileHashCode(file) + ".jpg";
+			String destPath = realPath + "\\videocut\\" + file.getName() + ".jpg";
 			File destFile = null;
 			try {
 				destFile = new File(destPath);
+				if (!destFile.getParentFile().exists()) destFile.getParentFile().mkdir();
 			} catch(Exception e) {
 				return "redirect:./img/notfound.jpg";
 			}
 			if (destFile == null)
 				return "redirect:./img/notfound.jpg";
 			if (!destFile.exists()) {
-				String cmd = realPath + "runtime\\ffmpeg -ss 00:02:06 -i \"" + srcPath + "\" -f image2 -y \"" + destPath + "\"";
+				String cmd = "ffmpeg -ss 00:02:06 -i \"" + srcPath + "\" -f image2 -y \"" + destPath + "\"";
 				RuntimeUtil.execCmd(cmd);
 				System.out.println("cmd : " + cmd);
 			}
-			return "redirect:./img/videocut/" + destFile.getName();
+			return "redirect:./download?path=" + StringUtil.encodeURI(destFile.getPath());
 		}
 		return "redirect:./img/notfound.jpg";
 	}

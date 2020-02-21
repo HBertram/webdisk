@@ -30,7 +30,7 @@ public class StringUtil {
 			return "";
 		String res = str;
 		try {
-			res = URLEncoder.encode(str, "utf-8");
+			res = URLEncoder.encode(str, "utf-8").replaceAll("%3A", ":");
 		} catch (Exception e) { e.printStackTrace(); }
 		return res;
 	}

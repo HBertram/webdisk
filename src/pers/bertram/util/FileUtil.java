@@ -11,23 +11,23 @@ public class FileUtil {
 	
 	public static String getFileType(File file) {
 		if (file == null)
-			return "";
+			return "others";
 		if (file.isDirectory())
-			return "dir";
+			return "directories";
 		String suf = getFileSuffix(file);
 		for (int i = 0; i < picSuf.length; i++) {
 			if (suf.equals(picSuf[i]))
-				return "pic";
+				return "pictures";
 		}
 		for (int i = 0; i < vidSuf.length; i++) {
 			if (suf.equals(vidSuf[i]))
-				return "vid";
+				return "videos";
 		}	
 		for (int i = 0; i < audSuf.length; i++) {
 			if (suf.equals(audSuf[i]))
-				return "aud";
+				return "audios";
 		}
-		return "oth";
+		return "others";
 	}
 	
 	public static String getFileSuffix(File file) {
@@ -51,7 +51,6 @@ public class FileUtil {
 	
 	public static File getFile(String path) {
 		File f = null;
-		path = StringUtil.codeTransfer(path);
 		if (path == null || path.trim().equals("")) {
 			return f;
 		}
