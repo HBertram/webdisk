@@ -161,22 +161,34 @@ table {
 <br>
 <br>
 	<!-- 文件夹及文件处理 -->
-	<table border = "1px">
-	   <tr><th width = "60%">文件名<br></th><th width = "10%">大小<br></th><th width = "15%">最后修改时间<br></th><th width="55px;" />O<br></tr>
+	<table v-show="directories.length > 0" border = "1px">
+	   <tr><th width = "60%">文件夹名<br></th><th width = "10%">大小<br></th><th width = "15%">最后修改时间<br></th><th width="55px;" />O<br></tr>
 	    <template v-for="(fileTreeInfo) in directories">
 	        <tr>
 	        	<td>
-	        		<a v-show="!!fileTreeInfo.type" v-bind:href = "'./showpath.html?path=' + encodeURI(fileTreeInfo.path)">{{ fileTreeInfo.name }}</a>
-	        		<a v-show="fileTreeInfo.type == 'others'" v-bind:href = "'./source?' + fileTreeInfo.path">{{ fileTreeInfo.name }}</a>
-					<a v-show="fileTreeInfo.type == 'audios'" onclick = "playaudio(event)" v-bind:href = "'./download?path=' + fileTreeInfo.encodedPath">play : {{ fileTreeInfo.name }}</a>
+	        		<a v-bind:href = "'./showpath.html?path=' + encodeURI(fileTreeInfo.path)">{{ fileTreeInfo.name }}</a>
 	        	</td>
 	        	<td>{{ fileTreeInfo.size }}</td>
-	        	<td>{{ fileTreeInfo.lastModifyTime }}</td>
+	        	<td>{{ fileTreeInfo.lastModifiedTime }}</td>
 	        	<td><a v-show="fileTreeInfo.type != 'directories'" v-bind:href = "'./download?path=' + fileTreeInfo.encodedPath"><div class="download" float="left"></div><span>下载</span></a></td>
 	       </tr>
 	    </template>
 	</table>
-	
+	<!-- 音频处理 -->
+	<table v-show="audios.length > 0" border = "1px">
+	   <tr><th width = "60%">音频<br></th><th width = "10%">大小<br></th><th width = "15%">最后修改时间<br></th><th width="55px;" />O<br></tr>
+	    <template v-for="(fileTreeInfo) in audios">
+	        <tr>
+	        	<td>
+	        		<a onclick = "playaudio(event)" v-bind:href = "'./download?path=' + fileTreeInfo.encodedPath">play : {{ fileTreeInfo.name }}</a>
+	        	</td>
+	        	<td>{{ fileTreeInfo.size }}</td>
+	        	<td>{{ fileTreeInfo.lastModifiedTime }}</td>
+	        	<td><a v-bind:href = "'./download?path=' + fileTreeInfo.encodedPath"><div class="download" float="left"></div><span>下载</span></a></td>
+	       </tr>
+	    </template>
+	</table>
+
 	<!-- 图片处理-->
 	<div class = "pics">
 		<template v-for="fileTreeInfo in pictures">
@@ -207,7 +219,20 @@ table {
 	</template>
     <div class = "clear"></div>
     </div>
-</c:forEach>
+   	<!-- 文件处理 -->
+	<table v-show="others.length > 0" border = "1px">
+	   <tr><th width = "60%">文件名<br></th><th width = "10%">大小<br></th><th width = "15%">最后修改时间<br></th><th width="55px;" />O<br></tr>
+	    <template v-for="(fileTreeInfo) in others">
+	        <tr>
+	        	<td>
+	        		<a v-bind:href = "'./source?' + fileTreeInfo.path">{{ fileTreeInfo.name }}</a>
+				</td>
+	        	<td>{{ fileTreeInfo.size }}</td>
+	        	<td>{{ fileTreeInfo.lastModifiedTime }}</td>
+	        	<td><a v-bind:href = "'./download?path=' + fileTreeInfo.encodedPath"><div class="download" float="left"></div><span>下载</span></a></td>
+	       </tr>
+	    </template>
+	</table>
 </div>
 <!-- 页脚 -->
 <div class = "foot"></div>
